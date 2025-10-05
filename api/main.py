@@ -182,3 +182,6 @@ def ingest(body: IngestBody, x_tf_key: Optional[str] = Header(None)):
 @app.get("/")
 def root():
     return {"service": "trust-fabric-sandbox", "status": "ok"}
+@app.get("/")
+def root():
+    return {"service": "trust-fabric-sandbox", "status": "ok"}
