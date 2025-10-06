@@ -113,11 +113,31 @@ def build_block_if_needed():
 
 # ---------- App ----------
 app = FastAPI(title="Trust-Fabric Sandbox API", version="0.1")
+# CORS — restrict to dashboard and Hoppscotch for testing
+DASH_URL = os.getenv("DASH_URL", "https://trust-fabric-sandbox.streamlit.app")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
+    allow_origins=[DASH_URL, "https://hoppscotch.io"],  # remove Hoppscotch later
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "X-TF-Key", "X-TF-Nonce", "X-TF-Sig", "X-TF-KeyId"],
+    allow_credentials=False,
 )
 
+# Security Headers Middleware
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+
+class SecurityHeaders(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        resp: Response = await call_next(request)
+        resp.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
+        resp.headers["X-Content-Type-Options"] = "nosniff"
+        resp.headers["X-Frame-Options"] = "DENY"
+        resp.headers["Referrer-Policy"] = "no-referrer"
+        return resp
+
+app.add_middleware(SecurityHeaders)
 @app.middleware("http")
 async def add_eval_header(request, call_next):
     resp = await call_next(request)
