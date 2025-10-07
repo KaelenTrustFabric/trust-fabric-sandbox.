@@ -7,7 +7,13 @@ from pydantic import BaseModel
 from nacl.signing import SigningKey
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from jose import jwt, JWTError
+from fastapi import Depends, Request
+import datetime as dt
 
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
+JWT_ALGO   = "HS256"
+JWT_TTL_MIN = int(os.getenv("JWT_TTL_MIN", "30"))
 # ---------- Config ----------
 DB_PATH       = os.getenv("DB_PATH", "./tf.db")
 INGEST_TOKEN  = os.getenv("INGEST_TOKEN", "DEV_INGEST_TOKEN")
