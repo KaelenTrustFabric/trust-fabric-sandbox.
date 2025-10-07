@@ -116,7 +116,51 @@ def build_block_if_needed():
     """, (BLOCK_SIZE, f"block_{block_id}"))
     conn.commit()
     return block_id
+    conn.commit()
+    return block_id
 
+# --------- Zero-Trust JWT Helpers ---------
+from jose import jwt, JWTError
+from fastapi import Depends, Request
+import datetime as dt
+
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-secret-change-me")
+JWT_ALGO   = "HS256"
+JWT_TTL_MIN = int(os.getenv("JWT_TTL_MIN", "30"))
+
+
+def create_token(sub: str, scope: str = "client") -> str:
+    now = dt.datetime.utcnow()
+    claims = {
+        "sub": sub,
+        "scope": scope,
+        "iat": int(now.timestamp()),
+        "exp": int((now + dt.timedelta(minutes=JWT_TTL_MIN)).timestamp()),
+    }
+    return jwt.encode(claims, JWT_SECRET, algorithm=JWT_ALGO)
+
+
+def verify_token(token: str) -> dict:
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGO])
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
+def require_auth(request: Request):
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer "):
+        token = auth.split(" ", 1)[1].strip()
+        return verify_token(token)
+
+    xkey = request.headers.get("X-TF-Key")
+    if xkey and xkey == INGEST_TOKEN:
+        return {"sub": "legacy", "scope": "ingest"}
+
+    raise HTTPException(status_code=401, detail="Auth required")
+
+# ---------- App ----------
+app = FastAPI(title="Trust-Fabric Sandbox API")
 # ---------- App ----------
 app = FastAPI(title="Trust-Fabric Sandbox API", version="0.1")
 # CORS — restrict to dashboard and Hoppscotch for testing
