@@ -4,3 +4,4 @@ SQLAlchemy==2.0.32
 pydantic==2.8.2
 PyNaCl==1.5.0
 python-dotenv==1.0.1
+python-jose[cryptography]==3.3.0
