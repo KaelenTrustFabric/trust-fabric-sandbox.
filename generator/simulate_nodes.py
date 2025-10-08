@@ -16,24 +16,6 @@ DEVICES = [
     ("TF-CV-201",  "Connected Vehicle", "I-95 EB MP 53"),
     ("TF-UAS-301", "UAS Node", "Port Perimeter"),
 ]
-# generator/simulate_nodes.py
-# Trust-Fabric simulator: gets a JWT, then posts signed-ish demo events to /v1/ingest
-
-import os, time, uuid, random, json, requests
-from datetime import datetime, timezone
-
-API_BASE    = os.getenv("API_URL", "https://trust-fabric-sandbox.onrender.com")
-INGEST_KEY  = os.getenv("INGEST_TOKEN", "<PUT_INGEST_TOKEN_HERE>")  # or set in Render/locally
-JWT_CLIENT  = os.getenv("JWT_CLIENT", "kaelen-demo")
-DELAY_S     = float(os.getenv("DELAY_S", "10"))      # seconds between rounds
-PER_DEVICE  = int(os.getenv("PER_DEVICE", "2"))      # events per device each round
-
-DEVICES = [
-    ("TF-SIG-101", "Traffic Signal", "Pratt & Light St"),
-    ("TF-CV-201",  "Connected Vehicle", "Inner Harbor"),
-    ("TF-UAS-301", "UAS Node", "Port Perimeter"),
-]
-
 def iso_now():
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
 
