@@ -1,4 +1,22 @@
 # generator/simulate_nodes.py
+# Trust-Fabric simulator — sends signed telemetry to your API.
+
+import os, time, uuid, random, json, requests
+from datetime import datetime, timezone
+
+# --- CONFIG (edit these two if needed) ---
+API_BASE   = "https://trust-fabric-sandbox.onrender.com"
+INGEST_KEY = "DEV_INGEST_TOKEN"   # or your new long random token
+DELAY_S    = 15                   # seconds between sends
+PER_DEVICE = 1                    # packets per device per cycle
+
+# Demo devices
+DEVICES = [
+    ("TF-SIG-101", "Traffic Signal", "Pratt & Light St"),
+    ("TF-CV-201",  "Connected Vehicle", "I-95 EB MP 53"),
+    ("TF-UAS-301", "UAS Node", "Port Perimeter"),
+]
+# generator/simulate_nodes.py
 # Trust-Fabric simulator: gets a JWT, then posts signed-ish demo events to /v1/ingest
 
 import os, time, uuid, random, json, requests
