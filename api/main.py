@@ -194,7 +194,25 @@ async def add_eval_header(request, call_next):
     if isinstance(resp, JSONResponse):
         resp.headers["X-TF-License"] = "Evaluation-Only"
     return resp
-
+195     return resp
+196
+197 # --------- Dev Token (for sandbox demos) ---------
+198 class TokenReq(BaseModel):
+199     client: Optional[str] = "sandbox-client"
+200     key: str  # must match INGEST_TOKEN
+201
+202 @app.post("/v1/dev-token")
+203 def dev_token(req: TokenReq):
+204     if req.key != INGEST_TOKEN:
+205         raise HTTPException(status_code=401, detail="Invalid key")
+206     return {
+207         "access_token": create_token(sub=req.client),
+208         "token_type": "bearer",
+209         "expires_in": JWT_TTL_MIN * 60
+210     }
+211
+212 # ---------- Routes ----------
+213 @app.get("/v1/health")
 # ---------- Routes ----------
 @app.get("/v1/health")
 def health():
